@@ -1,18 +1,28 @@
 class Api::V1::UsersController < ApplicationController
-    before_action :find_user, only: [:update, :destroy]
-    # byebug
+    before_action :find_user, only: [:profile, :update, :destroy]
+    
     skip_before_action :authorized
 
-    def profile
+    def index
         render json: User.all
     end
 
+    def profile
+        render json: { user: UserSerializer.new(current_user) }, status: :accepted
+    end
+
     def create
-        user = User.create(user_params)
+        user = User.create!(user_params)
+
         if user.valid? 
+            puts 'user is valid'
             token = encode_token(user_id: user.id)
+            puts "token created"
+            puts "token created"
+            puts token
             render json: { user: UserSerializer.new(user) }, status: :created
         else 
+            puts 'NOT VALID'
             render json: { error: 'failed to create user' }, status: :not_acceptable
         end
     end
